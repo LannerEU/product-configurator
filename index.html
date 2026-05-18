@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Product Configurator</title>
+
+  <!-- SheetJS for Excel export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --lanner-teal: #008193;
+      --lanner-teal-dark: #005f6d;
+      --lanner-teal-soft: #e9f7f9;
+      --lanner-blue-soft: #f3fbfc;
+      --ink: #1f2f38;
+      --muted: #5f6f78;
+      --line: #d7e7ea;
+      --card: #ffffff;
+      --page: #f4f9fa;
+      --shadow: 0 14px 36px rgba(0, 95, 109, 0.10);
+      --shadow-soft: 0 6px 18px rgba(0, 95, 109, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 24px;
+      background:
+        radial-gradient(circle at top left, rgba(0, 129, 147, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(0, 95, 109, 0.10), transparent 32%),
+        linear-gradient(180deg, #f7fcfd 0%, var(--page) 100%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 24px;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h2::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--lanner-teal);
+      box-shadow: 0 0 0 5px rgba(0, 129, 147, 0.10);
+    }
+
+    .sub {
+      color: var(--muted);
+      margin: 0 0 18px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .wrap {
+      max-width: 1200px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--lanner-teal), var(--lanner-teal-dark));
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 10px 0 7px;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #c9dde1;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    select:focus {
+      border-color: var(--lanner-teal);
+      box-shadow: 0 0 0 4px rgba(0, 129, 147, 0.12);
+    }
+
+    select:disabled {
+      background: #f7fafb;
+      color: #8fa1a8;
+      cursor: not-allowed;
+    }
+
+    button {
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btnrow {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--lanner-teal), var(--lanner-teal-dark));
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0, 129, 147, 0.22);
+    }
+
+    .primary:hover {
+      box-shadow: 0 10px 22px rgba(0, 129, 147, 0.28);
+    }
+
+    .secondary {
+      background: #fff;
+      color: var(--lanner-teal-dark);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .secondary:hover {
+      background: var(--lanner-teal-soft);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      padding: 11px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: 0;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      background: var(--lanner-teal-soft);
+      color: var(--lanner-teal-dark);
+      font-weight: 700;
+    }
+
+    td {
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 9px;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        margin: 16px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 16px;
+      }
+
+      .btnrow button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="loginScreen" style="position:fixed; inset:0; background:linear-gradient(180deg,#f7fcfd 0%, #eef6f7 100%); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px;">
+  <div style="width:100%; max-width:420px; background:rgba(255,255,255,0.96); border:1px solid #d7e7ea; border-radius:22px; padding:34px; box-shadow:0 18px 40px rgba(0,95,109,0.14); text-align:center;">
+    <div style="width:72px; height:72px; border-radius:20px; background:linear-gradient(135deg,#008193,#005f6d); margin:0 auto 18px; display:flex; align-items:center; justify-content:center; color:white; font-size:28px; font-weight:700;">L</div>
+
+    <h1 style="font-size:30px; margin-bottom:10px;">Product Configurator</h1>
+    <p style="color:#5f6f78; margin-bottom:24px;">Enter your access code to continue</p>
+
+    <input
+      type="password"
+      id="accessCode"
+      placeholder="Enter access code"
+      style="width:100%; padding:14px 16px; border-radius:14px; border:1px solid #c9dde1; font-size:15px; outline:none; margin-bottom:14px;"
+    />
+
+    <button
+      onclick="validateAccess()"
+      style="width:100%; padding:14px; border:none; border-radius:14px; background:linear-gradient(135deg,#008193,#005f6d); color:white; font-weight:700; cursor:pointer; box-shadow:0 10px 22px rgba(0,129,147,0.22);"
+    >
+      Enter Configurator
+    </button>
+
+    <div id="loginError" style="display:none; color:#d92d20; margin-top:14px; font-size:14px; font-weight:600;">
+      Invalid access code
+    </div>
+  </div>
+</div>
+
+<div id="mainConfigurator" style="display:none;">
+<div class="wrap">
+  <h1>Build your product</h1>
+  <p class="sub">Lanner Europe B.V</p>
+
+  <div class="card">
+    <h2>Configure</h2>
+    <div id="formArea" class="grid"></div>
+
+    <div class="btnrow">
+      <button class="primary" type="button" onclick="preview()">Preview</button>
+      <button class="secondary" type="button" onclick="clearAll()">Clear</button>
+      <button class="primary" type="button" onclick="exportExcel()">Export to Excel</button>
+    </div>
+
+    <div class="hint">
+      Select <b>Model</b> first. The other LOVs will update based on the model selection.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Preview</h2>
+    <div id="previewStatus" class="hint">Choose values and click Preview.</div>
+
+    <table id="selTable">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Selected Value</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // ---------- CONFIG: model-driven LOVs ----------
+  // (I preserved your wording exactly, including duplicates in SSD lists.)
+  const MODEL_CONFIGS = {
+    "IIOT-I531A": {
+      "CPU": [
+        "IIoT-1531 with Intel Core i7-1185GRE"
+      ],
+      "RAM": ["8GB","2x8","16GB","2x16","32GB","2x32"],
+      "SSD": [
+        "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+      ],
+      "Removable SSD": [
+        "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+      ],
+      "PSU": ["AC Single PSU","24VDC"],
+      "PCI eCards": ["1 x PCIe x16","3 x PCIe x4 slots"],
+      "OS": ["Windows 11","Windows 10 Embedded","Windows Server 2022","Linux"]
+    },
+
+    "LEC-3340E": {
+      "CPU": [
+        "LEC-3340E with Intel Xeon W-11865MLE",
+        "LEC-3340F with Intel® Xeon® W-11555MLE"
+      ],
+      "RAM": ["8GB","2x8","16GB","2x16","32GB","2x32"],
+      "SSD": [
+        "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+      ],
+      "Removable SSD": [
+        "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+      ],
+      "PSU": ["AC Single PSU","24VDC"],
+      "PCI eCards": ["1 x PCIe x16","3 x PCIe x4 slots"],
+      "OS": ["Windows 11","Windows 10 Embedded","Windows Server 2022","Linux"]
+    }
+  };
+
+  // Order of fields to show (after Model)
+  const FIELD_ORDER = ["Model","CPU","RAM","SSD","Removable SSD","PSU","PCI eCards","OS"];
+
+  // ---------- UI helpers ----------
+  function el(tag, attrs={}, children=[]) {
+    const n = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs)) {
+      if (k === "text") n.textContent = v;
+      else n.setAttribute(k, v);
+    }
+    for (const ch of children) n.appendChild(ch);
+    return n;
+  }
+  function idFor(param) { return "f_" + param.replace(/\W+/g, "_"); }
+
+  function buildForm() {
+    const formArea = document.getElementById("formArea");
+    formArea.innerHTML = "";
+
+    // Model select (always visible)
+    const modelWrap = document.createElement("div");
+    const modelId = idFor("Model");
+    const modelLabel = el("label", { for: modelId, text: "Model" });
+    const modelSelect = el("select", { id: modelId, name: "Model" });
+    modelSelect.appendChild(el("option", { value: "", text: "Select..." }));
+    Object.keys(MODEL_CONFIGS).forEach(m => {
+      modelSelect.appendChild(el("option", { value: m, text: m }));
+    });
+
+    modelSelect.addEventListener("change", () => {
+      // rebuild dependent LOVs
+      populateDependentLovs(modelSelect.value);
+      // (optional) refresh preview live
+      // preview();
+    });
+
+    modelWrap.appendChild(modelLabel);
+    modelWrap.appendChild(modelSelect);
+    formArea.appendChild(modelWrap);
+
+    // Create empty selects for the rest, will be populated after model selection
+    FIELD_ORDER.slice(1).forEach(param => {
+      const wrap = document.createElement("div");
+      const id = idFor(param);
+      const label = el("label", { for: id, text: param });
+      const select = el("select", { id, name: param, disabled: "disabled" });
+      select.appendChild(el("option", { value: "", text: "Select model first..." }));
+      select.addEventListener("change", () => {
+        // optional: preview();
+      });
+      wrap.appendChild(label);
+      wrap.appendChild(select);
+      formArea.appendChild(wrap);
+    });
+  }
+
+  function setSelectOptions(selectEl, options, placeholderText="Select...") {
+    selectEl.innerHTML = "";
+    selectEl.appendChild(el("option", { value: "", text: placeholderText }));
+    options.forEach(opt => selectEl.appendChild(el("option", { value: opt, text: opt })));
+  }
+
+  function populateDependentLovs(model) {
+    // Clear and disable all if no model
+    if (!model || !MODEL_CONFIGS[model]) {
+      FIELD_ORDER.slice(1).forEach(param => {
+        const sel = document.getElementById(idFor(param));
+        sel.value = "";
+        sel.setAttribute("disabled","disabled");
+        setSelectOptions(sel, [], "Select model first...");
+      });
+      return;
+    }
+
+    // Enable and populate based on model config
+    const cfg = MODEL_CONFIGS[model];
+    FIELD_ORDER.slice(1).forEach(param => {
+      const sel = document.getElementById(idFor(param));
+      sel.removeAttribute("disabled");
+      const opts = cfg[param] || [];
+      setSelectOptions(sel, opts, "Select...");
+      sel.value = "";
+    });
+  }
+
+  // ---------- Preview + Export ----------
+  function getSelections() {
+    const selections = [];
+
+    // Always include model
+    const modelVal = document.getElementById(idFor("Model")).value;
+    selections.push({ parameter: "Model", value: modelVal });
+
+    // Include other fields only if they have a value
+    FIELD_ORDER.slice(1).forEach(param => {
+      const sel = document.getElementById(idFor(param));
+      const val = sel ? sel.value : "";
+      selections.push({ parameter: param, value: val });
+    });
+
+    return selections;
+  }
+
+  function preview() {
+    const tbody = document.querySelector("#selTable tbody");
+    tbody.innerHTML = "";
+
+    const selected = getSelections().filter(x => x.value && x.value.trim() !== "");
+
+    selected.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.appendChild(el("td", { text: row.parameter }));
+      tr.appendChild(el("td", { text: row.value }));
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById("previewStatus").textContent =
+      selected.length
+        ? `Preview updated (${selected.length} selections).`
+        : "No selections yet.";
+  }
+
+  function clearAll() {
+    // reset model
+    const modelSel = document.getElementById(idFor("Model"));
+    modelSel.value = "";
+    // reset dependent fields
+    populateDependentLovs("");
+    preview();
+  }
+
+  function exportExcel() {
+    const rows = getSelections().filter(x => x.value && x.value.trim() !== "");
+    if (!rows.length) {
+      alert("Nothing to export.");
+      return;
+    }
+
+    const ws = XLSX.utils.json_to_sheet(
+      rows.map(r => ({ Parameter: r.parameter, Value: r.value }))
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Configuration");
+    XLSX.writeFile(wb, "Configuration_Output.xlsx");
+  }
+
+  // init
+  buildForm();
+  populateDependentLovs(""); // start disabled until model is selected
+  preview();
+</script>
+</div>
+
+<script>
+  const VALID_USER_CODES = ["LANNER2026", "SALES2026", "CONFIG123"];
+
+  function validateAccess() {
+    const input = document.getElementById("accessCode").value.trim();
+
+    if (VALID_USER_CODES.includes(input)) {
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("mainConfigurator").style.display = "block";
+    } else {
+      document.getElementById("loginError").style.display = "block";
+    }
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      const loginVisible = document.getElementById("loginScreen").style.display !== "none";
+      if (loginVisible) validateAccess();
+    }
+  });
+</script>
+</body>
+</html>
