@@ -316,58 +316,88 @@
   // ---------- CONFIG: model-driven LOVs ----------
   // (I preserved your wording exactly, including duplicates in SSD lists.)
   const MODEL_CONFIGS = {
-    "IIOT-I531A": {
+    "IIOT-1531": {
       "CPU": [
-        "IIoT-1531 with Intel Core i7-1185GRE"
+        "Intel® Core™ i7-1185GRE Processor (12M Cache, up to 4.40 GHz)",
+        "Intel® Core™ i5-1145GRE Processor (8M Cache, up to 4.10 GHz)",
+        "Intel® Core™ i3-1115GRE Processor (6M Cache, up to 3.90 GHz)"
       ],
-      "RAM": ["8GB","2x8","16GB","2x16","32GB","2x32"],
-      "SSD": [
+      "RAM": [
+        "8GB",
+        "16GB (2x8GB)",
+        "32GB (2x16GB)",
+        "64GB (2x32GB)"
+      ],
+      "SATA Storage 1": [
         "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "512GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "4TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
       ],
-      "Removable SSD": [
-        "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
-      ],
-      "PSU": ["AC Single PSU","24VDC"],
-      "PCI eCards": ["1 x PCIe x16","3 x PCIe x4 slots"],
-      "OS": ["Windows 11","Windows 10 Embedded","Windows Server 2022","Linux"]
+      "PSU 1": [
+        "220W Power Adapter"
+      ]
     },
 
-    "LEC-3340E": {
+    "LEC-3340": {
       "CPU": [
-        "LEC-3340E with Intel Xeon W-11865MLE",
-        "LEC-3340F with Intel® Xeon® W-11555MLE"
+        "LEC-3340E with Intel® Xeon® W-11865MLE",
+        "LEC-3340F with Intel® Xeon® W-11555MLE",
+        "LEC-3340G with Intel® Xeon® W-11155MLE"
       ],
-      "RAM": ["8GB","2x8","16GB","2x16","32GB","2x32"],
-      "SSD": [
+      "RAM": [
+        "8GB",
+        "16GB (2x8GB)",
+        "32GB (2x16GB)",
+        "64GB (2x32GB)"
+      ],
+      "SATA Storage 1": [
         "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "512GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "4TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
       ],
-      "Removable SSD": [
+      "SATA Storage 2": [
         "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "512GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
-        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+        "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "4TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
       ],
-      "PSU": ["AC Single PSU","24VDC"],
-      "PCI eCards": ["1 x PCIe x16","3 x PCIe x4 slots"],
-      "OS": ["Windows 11","Windows 10 Embedded","Windows Server 2022","Linux"]
+      "PSU 1": [
+        "100-240 VAC (Single)",
+        "16.6 - 160 VDC (Single)"
+      ],
+      "PSU 2": [
+        "100-240 VAC (Single)",
+        "16.6 - 160 VDC (Single)"
+      ],
+      "PCIe x4 cards": [
+        "IEK-IS401_LAN Card 2xLC connector 100/1000Mbit",
+        "IEK-IS401_Optical LAN Card 4xLC connector 100/1000Mbit",
+        "IEK-XF300_HSR PRP"
+      ],
+      "PCIe x16 cards": [
+        "Areca 1203-2I_Windows Server 2022 RAID CARD"
+      ],
+      "OS": [
+        "Windows Server 2022"
+      ]
     }
   };
 
   // Order of fields to show (after Model)
-  const FIELD_ORDER = ["Model","CPU","RAM","SSD","Removable SSD","PSU","PCI eCards","OS"];
+  const FIELD_ORDER = ["Model","CPU","RAM","SATA Storage 1","SATA Storage 2","PSU 1","PSU 2","PCIe x4 cards","PCIe x16 cards","OS"];
+
+  // Display labels only. Internal key stays CPU so the model-driven logic remains stable.
+  const PARAM_LABELS = {
+    "CPU": "Model"
+  };
 
   // ---------- UI helpers ----------
   function el(tag, attrs={}, children=[]) {
@@ -396,28 +426,66 @@
     });
 
     modelSelect.addEventListener("change", () => {
-      // rebuild dependent LOVs
       populateDependentLovs(modelSelect.value);
-      // (optional) refresh preview live
-      // preview();
     });
 
     modelWrap.appendChild(modelLabel);
     modelWrap.appendChild(modelSelect);
     formArea.appendChild(modelWrap);
 
-    // Create empty selects for the rest, will be populated after model selection
+    // Create fields dynamically
     FIELD_ORDER.slice(1).forEach(param => {
       const wrap = document.createElement("div");
       const id = idFor(param);
-      const label = el("label", { for: id, text: param });
-      const select = el("select", { id, name: param, disabled: "disabled" });
-      select.appendChild(el("option", { value: "", text: "Select model first..." }));
-      select.addEventListener("change", () => {
-        // optional: preview();
-      });
-      wrap.appendChild(label);
-      wrap.appendChild(select);
+      const label = el("label", { for: id, text: PARAM_LABELS[param] || param });
+
+      // PCIe x4 cards can be selected up to 3 times.
+      // Three separate slots allow duplicate selections, unlike a normal multi-select.
+      if (param === "PCIe x4 cards") {
+        wrap.appendChild(label);
+
+        for (let slot = 1; slot <= 3; slot++) {
+          const slotLabel = document.createElement("div");
+          slotLabel.className = "hint";
+          slotLabel.textContent = `PCIe x4 card slot ${slot}`;
+          slotLabel.style.marginTop = slot === 1 ? "0" : "10px";
+
+          const select = el("select", {
+            id: `${id}_${slot}`,
+            name: `${param} ${slot}`,
+            disabled: "disabled"
+          });
+
+          select.appendChild(el("option", {
+            value: "",
+            text: "Select model first..."
+          }));
+
+          wrap.appendChild(slotLabel);
+          wrap.appendChild(select);
+        }
+
+        const note = document.createElement("div");
+        note.className = "hint";
+        note.textContent = "Choose up to 3 cards. The same card can be selected more than once.";
+        wrap.appendChild(note);
+      }
+      else {
+        const select = el("select", {
+          id,
+          name: param,
+          disabled: "disabled"
+        });
+
+        select.appendChild(el("option", {
+          value: "",
+          text: "Select model first..."
+        }));
+
+        wrap.appendChild(label);
+        wrap.appendChild(select);
+      }
+
       formArea.appendChild(wrap);
     });
   }
@@ -432,7 +500,26 @@
     // Clear and disable all if no model
     if (!model || !MODEL_CONFIGS[model]) {
       FIELD_ORDER.slice(1).forEach(param => {
+        if (param === "PCIe x4 cards") {
+          const baseId = idFor(param);
+          for (let slot = 1; slot <= 3; slot++) {
+            const sel = document.getElementById(`${baseId}_${slot}`);
+            if (!sel) continue;
+            const fieldWrap = sel.closest("div");
+            if (fieldWrap) fieldWrap.style.display = "block";
+            sel.value = "";
+            sel.setAttribute("disabled","disabled");
+            setSelectOptions(sel, [], "Select model first...");
+          }
+          return;
+        }
+
         const sel = document.getElementById(idFor(param));
+        if (!sel) return;
+
+        const fieldWrap = sel.closest("div");
+        if (fieldWrap) fieldWrap.style.display = "block";
+
         sel.value = "";
         sel.setAttribute("disabled","disabled");
         setSelectOptions(sel, [], "Select model first...");
@@ -440,12 +527,55 @@
       return;
     }
 
-    // Enable and populate based on model config
+    // Enable and populate based on model config.
+    // Hide parameters that have no LOV values for the selected model.
     const cfg = MODEL_CONFIGS[model];
     FIELD_ORDER.slice(1).forEach(param => {
-      const sel = document.getElementById(idFor(param));
-      sel.removeAttribute("disabled");
       const opts = cfg[param] || [];
+
+      if (param === "PCIe x4 cards") {
+        const baseId = idFor(param);
+        const firstSel = document.getElementById(`${baseId}_1`);
+        const fieldWrap = firstSel ? firstSel.closest("div") : null;
+
+        if (!opts.length) {
+          for (let slot = 1; slot <= 3; slot++) {
+            const sel = document.getElementById(`${baseId}_${slot}`);
+            if (!sel) continue;
+            sel.value = "";
+            sel.setAttribute("disabled","disabled");
+            setSelectOptions(sel, [], "Not available for this model");
+          }
+          if (fieldWrap) fieldWrap.style.display = "none";
+          return;
+        }
+
+        if (fieldWrap) fieldWrap.style.display = "block";
+        for (let slot = 1; slot <= 3; slot++) {
+          const sel = document.getElementById(`${baseId}_${slot}`);
+          if (!sel) continue;
+          sel.removeAttribute("disabled");
+          setSelectOptions(sel, opts, `Select card ${slot}...`);
+          sel.value = "";
+        }
+        return;
+      }
+
+      const sel = document.getElementById(idFor(param));
+      if (!sel) return;
+
+      const fieldWrap = sel.closest("div");
+
+      if (!opts.length) {
+        sel.value = "";
+        sel.setAttribute("disabled","disabled");
+        setSelectOptions(sel, [], "Not available for this model");
+        if (fieldWrap) fieldWrap.style.display = "none";
+        return;
+      }
+
+      if (fieldWrap) fieldWrap.style.display = "block";
+      sel.removeAttribute("disabled");
       setSelectOptions(sel, opts, "Select...");
       sel.value = "";
     });
@@ -462,8 +592,27 @@
     // Include other fields only if they have a value
     FIELD_ORDER.slice(1).forEach(param => {
       const sel = document.getElementById(idFor(param));
-      const val = sel ? sel.value : "";
-      selections.push({ parameter: param, value: val });
+
+      let val = "";
+
+      // PCIe x4 supports up to 3 card slots and allows duplicate card choices.
+      if (param === "PCIe x4 cards") {
+        const baseId = idFor(param);
+        val = [];
+
+        for (let slot = 1; slot <= 3; slot++) {
+          const slotSel = document.getElementById(`${baseId}_${slot}`);
+          if (slotSel && slotSel.value) {
+            val.push(`Slot ${slot}: ${slotSel.value}`);
+          }
+        }
+
+        val = val.join(", ");
+      } else {
+        val = sel ? sel.value : "";
+      }
+
+      selections.push({ parameter: PARAM_LABELS[param] || param, value: val });
     });
 
     return selections;
