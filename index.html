@@ -226,6 +226,62 @@
       margin-top: 9px;
     }
 
+    .history-panel {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .history-header h2 {
+      margin: 0;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-item {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .history-title {
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .history-meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .history-actions button {
+      padding: 8px 12px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+
     @media (max-width: 700px) {
       body {
         margin: 16px;
@@ -289,6 +345,7 @@
       <button class="primary" type="button" onclick="preview()">Preview</button>
       <button class="secondary" type="button" onclick="clearAll()">Clear</button>
       <button class="primary" type="button" onclick="exportExcel()">Export to Excel</button>
+      <button class="secondary" type="button" onclick="saveConfiguration()">Save</button>
     </div>
 
     <div class="hint">
@@ -309,6 +366,14 @@
       </thead>
       <tbody></tbody>
     </table>
+
+    <div class="history-panel">
+      <div class="history-header">
+        <h2>Saved History</h2>
+        <button class="secondary" type="button" onclick="clearHistory()">Clear History</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </div>
   </div>
 </div>
 
@@ -317,18 +382,32 @@
   // (I preserved your wording exactly, including duplicates in SSD lists.)
   const MODEL_CONFIGS = {
     "IIOT-1531": {
-      "CPU": [
+      "Model": [
         "Intel® Core™ i7-1185GRE Processor (12M Cache, up to 4.40 GHz)",
         "Intel® Core™ i5-1145GRE Processor (8M Cache, up to 4.10 GHz)",
         "Intel® Core™ i3-1115GRE Processor (6M Cache, up to 3.90 GHz)"
       ],
       "RAM": [
-        "8GB",
-        "16GB (2x8GB)",
+        "8GB ECC SO-DIMM WT",
+        "16GB ECC SO-DIMM WT",
+        "16GB ECC SO-DIMM WT (2x8GB)",
         "32GB (2x16GB)",
         "64GB (2x32GB)"
       ],
-      "SATA Storage 1": [
+      "Onboard SATA mSATA Storage": [
+        "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "512GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+      ],
+      "Onboard NVME M.2 2280": [
+        "128GB, M.2 2280, PCIe Gen3x4, NVMe, 3D TLC BiCS5, WT",
+        "256GB, M.2 2280, PCIe Gen3x4, NVMe, 3D TLC BiCS5, WT",
+        "512GB, M.2 2280, PCIe Gen3x4, NVMe, 3D TLC BiCS5, WT",
+        "1TB, M.2 2280, PCIe Gen3x4, NVMe, 3D TLC BiCS5, WT",
+        "4TB, M.2 2280, PCIe Gen3x4, NVMe, 3D TLC BiCS5, WT"
+      ],
+      "Removeable SATA Storage 1": [
         "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "512GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
@@ -342,18 +421,25 @@
     },
 
     "LEC-3340": {
-      "CPU": [
+      "Model": [
         "LEC-3340E with Intel® Xeon® W-11865MLE",
         "LEC-3340F with Intel® Xeon® W-11555MLE",
         "LEC-3340G with Intel® Xeon® W-11155MLE"
       ],
       "RAM": [
-        "8GB",
+        "8GB ECC SO-DIMM WT",
+        "16GB ECC SO-DIMM WT",
         "16GB (2x8GB)",
         "32GB (2x16GB)",
         "64GB (2x32GB)"
       ],
-      "SATA Storage 1": [
+      "Onboard SATA M.2 2242 Storage": [
+        "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "512GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
+        "1TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
+      ],
+      "Removeable SATA Storage 1": [
         "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "512GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
@@ -361,7 +447,7 @@
         "2TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "4TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
       ],
-      "SATA Storage 2": [
+      "Removeable SATA Storage 2": [
         "128GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "256GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
         "512GB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp.",
@@ -370,34 +456,34 @@
         "4TB, SATA3, 3D TLC BiCS5, PE: 3K, Wide temp."
       ],
       "PSU 1": [
-        "100-240 VAC (Single)",
-        "16.6 - 160 VDC (Single)"
+        "VAC 100~240V 200W",
+        "VDC 16.6 - 160 100W",
+        "DC 100-240V/ AC 100~240V, 150W"
       ],
       "PSU 2": [
-        "100-240 VAC (Single)",
-        "16.6 - 160 VDC (Single)"
+        "VAC 100~240V 200W",
+        "VDC 16.6 - 160 100W",
+        "DC 100-240V/ AC 100~240V, 150W"
       ],
       "PCIe x4 cards": [
-        "IEK-IS401_LAN Card 2xLC connector 100/1000Mbit",
+        "IEK-IG401_LAN Card 4x RJ45 100/1000Mbit",
         "IEK-IS401_Optical LAN Card 4xLC connector 100/1000Mbit",
-        "IEK-XF300_HSR PRP"
-      ],
-      "PCIe x16 cards": [
+        "IEK-XF300_HSR PRP",
         "Areca 1203-2I_Windows Server 2022 RAID CARD"
       ],
       "OS": [
-        "Windows Server 2022"
+        "Windows Server 2022",
+        "Windows 11 Enterprise LTSC",
+        "Windows 10 Enterprise LTSC"
       ]
     }
   };
 
   // Order of fields to show (after Model)
-  const FIELD_ORDER = ["Model","CPU","RAM","SATA Storage 1","SATA Storage 2","PSU 1","PSU 2","PCIe x4 cards","PCIe x16 cards","OS"];
+  const FIELD_ORDER = ["Series","Model","RAM","Onboard SATA M.2 2242 Storage","Onboard SATA mSATA Storage","Onboard NVME M.2 2280","Removeable SATA Storage 1","Removeable SATA Storage 2","PSU 1","PSU 2","PCIe x4 cards","PCIe x16 cards","OS"];
 
-  // Display labels only. Internal key stays CPU so the model-driven logic remains stable.
-  const PARAM_LABELS = {
-    "CPU": "Model"
-  };
+  // Display labels only.
+  const PARAM_LABELS = {};
 
   // ---------- UI helpers ----------
   function el(tag, attrs={}, children=[]) {
@@ -417,8 +503,8 @@
 
     // Model select (always visible)
     const modelWrap = document.createElement("div");
-    const modelId = idFor("Model");
-    const modelLabel = el("label", { for: modelId, text: "Model" });
+    const modelId = idFor("Series");
+    const modelLabel = el("label", { for: modelId, text: "Series" });
     const modelSelect = el("select", { id: modelId, name: "Model" });
     modelSelect.appendChild(el("option", { value: "", text: "Select..." }));
     Object.keys(MODEL_CONFIGS).forEach(m => {
@@ -586,8 +672,8 @@
     const selections = [];
 
     // Always include model
-    const modelVal = document.getElementById(idFor("Model")).value;
-    selections.push({ parameter: "Model", value: modelVal });
+    const modelVal = document.getElementById(idFor("Series")).value;
+    selections.push({ parameter: "Series", value: modelVal });
 
     // Include other fields only if they have a value
     FIELD_ORDER.slice(1).forEach(param => {
@@ -639,7 +725,7 @@
 
   function clearAll() {
     // reset model
-    const modelSel = document.getElementById(idFor("Model"));
+    const modelSel = document.getElementById(idFor("Series"));
     modelSel.value = "";
     // reset dependent fields
     populateDependentLovs("");
@@ -661,15 +747,121 @@
     XLSX.writeFile(wb, "Configuration_Output.xlsx");
   }
 
+  // ---------- Save + Local History ----------
+  const HISTORY_KEY = "lanner_product_configurator_history";
+
+  function getHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function setHistory(history) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  }
+
+  function saveConfiguration() {
+    const rows = getSelections().filter(x => x.value && x.value.trim() !== "");
+
+    if (!rows.length) {
+      alert("Nothing to save.");
+      return;
+    }
+
+    const model = rows.find(x => x.parameter === "Model")?.value || "Configuration";
+    const savedItem = {
+      id: Date.now(),
+      name: model + " - " + new Date().toLocaleString(),
+      createdAt: new Date().toISOString(),
+      rows
+    };
+
+    const history = getHistory();
+    history.unshift(savedItem);
+    setHistory(history);
+    renderHistory();
+    alert("Configuration saved to local history.");
+  }
+
+  function renderHistory() {
+    const historyList = document.getElementById("historyList");
+    if (!historyList) return;
+
+    const history = getHistory();
+
+    if (!history.length) {
+      historyList.innerHTML = `<div class="hint">No saved configurations yet.</div>`;
+      return;
+    }
+
+    historyList.innerHTML = history.map(item => {
+      const created = new Date(item.createdAt).toLocaleString();
+      const summary = item.rows.map(row => `${row.parameter}: ${row.value}`).join(" | ");
+
+      return `
+        <div class="history-item">
+          <div class="history-title">${item.name}</div>
+          <div class="history-meta">Saved: ${created}</div>
+          <div class="history-meta">${summary}</div>
+          <div class="history-actions">
+            <button class="primary" type="button" onclick="loadConfiguration(${item.id})">Load</button>
+            <button class="secondary" type="button" onclick="deleteConfiguration(${item.id})">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function loadConfiguration(id) {
+    const history = getHistory();
+    const item = history.find(x => x.id === id);
+    if (!item) return;
+
+    const modelRow = item.rows.find(x => x.parameter === "Series");
+    const modelValue = modelRow ? modelRow.value : "";
+    const modelSelect = document.getElementById(idFor("Model"));
+
+    if (modelSelect) {
+      modelSelect.value = modelValue;
+      populateDependentLovs(modelValue);
+    }
+
+    item.rows.forEach(row => {
+      if (row.parameter === "Series") return;
+
+      // CPU is displayed as Model in some versions, so keep direct fallback simple.
+      const param = row.parameter;
+      const sel = document.getElementById(idFor(param));
+      if (sel) sel.value = row.value;
+    });
+
+    preview();
+  }
+
+  function deleteConfiguration(id) {
+    const history = getHistory().filter(x => x.id !== id);
+    setHistory(history);
+    renderHistory();
+  }
+
+  function clearHistory() {
+    if (!confirm("Clear all saved configurations from this browser?")) return;
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+  }
+
   // init
   buildForm();
   populateDependentLovs(""); // start disabled until model is selected
   preview();
+  renderHistory();
 </script>
 </div>
 
 <script>
-  const VALID_USER_CODES = ["HITACHI123", "LANNER123", "CONFIG123"];
+  const VALID_USER_CODES = ["LANNER2026", "SALES2026", "CONFIG123"];
 
   function validateAccess() {
     const input = document.getElementById("accessCode").value.trim();
